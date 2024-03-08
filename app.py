@@ -15,7 +15,7 @@ st.sidebar.header("DATOS INDUSTRIALES")
 st.sidebar.subheader("DESPULPADORA")
 
 despulpadoras = st.sidebar.slider(
-    "Cantidad de Despulpadoras - [1.5 kWh]", min_value=0, max_value=100, value=100, step=1)
+    "Cantidad de Despulpadoras - [1.5 kWh]", min_value=0, max_value=150, value=100, step=1)
 start_desp, end_desp = st.sidebar.select_slider(
     'SELECCIONAR HORARIO DESPULPADORA',
     options=range(1, 25),
@@ -23,7 +23,7 @@ start_desp, end_desp = st.sidebar.select_slider(
 
 st.sidebar.subheader("SILOS")
 silos = st.sidebar.slider(
-    "Cantidad de Silos - [10.0 kWh]", min_value=0, max_value=20, value=20, step=1)
+    "Cantidad de Silos - [10.0 kWh]", min_value=0, max_value=20, value=10, step=1)
 start_silo, end_silo = st.sidebar.select_slider(
     'SELECCIONAR HORARIO SILOS',
     options=range(1, 25),
@@ -56,9 +56,16 @@ casa_2 = st.sidebar.slider(
 st.sidebar.subheader("CONSUMO PROMEDIO DIARIO DATOS RESIDENCIALES")
 
 con_casa_1 = st.sidebar.slider(
-    "Consumo Diario Casas Con Medidores", min_value=0.0, max_value=40.0, value=7.0, step=0.2)
+    "Consumo Diario Casas Con Medidores", min_value=0.0, max_value=40.0, value=5.2, step=0.2)
 con_casa_2 = st.sidebar.slider(
-    "Consumo Diario Casas Sin Medidores", min_value=0.0, max_value=40.0, value=10.0, step=0.2)
+    "Consumo Diario Casas Sin Medidores", min_value=0.0, max_value=40.0, value=5.2, step=0.2)
+
+st.sidebar.subheader("SISTEMA DE GENERACIÓN ADICIONAL")
+
+total_fincas = st.sidebar.slider(
+    "Cantidad de Fincas Con Capacidad [~2.2 kW]", min_value=0, max_value=40, value=20, step=1)
+eficiencia_f = st.sidebar.slider(
+    "Eficiencia", min_value=0, max_value=100, value=80, step=1)
 
 
 # ------------------------------------------------------------------------------------------------------ #
@@ -158,11 +165,13 @@ df = pd.concat([df_ind.set_index("HORAS"), df_tmp.set_index("HORAS")], axis=1).r
 df["CONSUMO RESIDENCIAL"] = (df['CONSUMO CASAS CON MEDIDORES [kW]'] + df_tmp['CONSUMO CASAS SIN MEDIDORES [kW]'])
 df["CONSUMO INDUSTRIAL"] = df["CONSUMO_DESPULPADORA"] + df["CONSUMO_SILO"] + df["CONSUMO_TOSTADORA"] + df["CONSUMO_TRILLADORA"]
 df["CONSUMO TOTAL"] = df["CONSUMO RESIDENCIAL"] + df["CONSUMO INDUSTRIAL"]
-df["GENERACIÓN"] = (gen_1 + gen_2)
+df["GENERACIÓN PCH"] = (gen_1 + gen_2)
+df["GENERACION FINCAS"] = (eficiencia_f * total_fincas * 2.2 / 100)
+df["GENERACION"] = df["GENERACIÓN PCH"] + df["GENERACION FINCAS"]
 
 st.line_chart(
-    df, x="HORAS", y=["CONSUMO RESIDENCIAL", "CONSUMO INDUSTRIAL", "GENERACIÓN", "CONSUMO TOTAL"]
+    df, x="HORAS", y=["GENERACIÓN PCH", "GENERACION FINCAS", "GENERACION", "CONSUMO RESIDENCIAL", "CONSUMO INDUSTRIAL", "CONSUMO TOTAL"]
 )
 
-## st.dataframe(df)
+st.dataframe(df.sort_values("HORAS").set_index("HORAS")[["GENERACION", "CONSUMO TOTAL"]])
 
