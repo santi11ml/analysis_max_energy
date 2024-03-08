@@ -164,5 +164,5 @@ st.line_chart(
     df, x="HORAS", y=["CONSUMO RESIDENCIAL", "CONSUMO INDUSTRIAL", "GENERACIÓN", "CONSUMO TOTAL"]
 )
 
-st.dataframe(df)
+## st.dataframe(df)
 
