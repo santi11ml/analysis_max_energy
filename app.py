@@ -166,12 +166,27 @@ df["CONSUMO RESIDENCIAL"] = (df['CONSUMO CASAS CON MEDIDORES [kW]'] + df_tmp['CO
 df["CONSUMO INDUSTRIAL"] = df["CONSUMO_DESPULPADORA"] + df["CONSUMO_SILO"] + df["CONSUMO_TOSTADORA"] + df["CONSUMO_TRILLADORA"]
 df["CONSUMO TOTAL"] = df["CONSUMO RESIDENCIAL"] + df["CONSUMO INDUSTRIAL"]
 df["GENERACIÓN PCH"] = (gen_1 + gen_2)
-df["GENERACION FINCAS"] = (eficiencia_f * total_fincas * 2.2 / 100)
-df["GENERACION"] = df["GENERACIÓN PCH"] + df["GENERACION FINCAS"]
+df["GENERACIÓN FINCAS"] = (eficiencia_f * total_fincas * 2.2 / 100)
+df["GENERACIÓN"] = df["GENERACIÓN PCH"] + df["GENERACIÓN FINCAS"]
 
 st.line_chart(
-    df, x="HORAS", y=["GENERACIÓN PCH", "GENERACION FINCAS", "GENERACION", "CONSUMO RESIDENCIAL", "CONSUMO INDUSTRIAL", "CONSUMO TOTAL"]
+    df, x="HORAS", y=["GENERACIÓN PCH", "GENERACIÓN FINCAS", "GENERACIÓN", "CONSUMO RESIDENCIAL", "CONSUMO INDUSTRIAL", "CONSUMO TOTAL"]
 )
 
-st.dataframe(df.sort_values("HORAS").set_index("HORAS")[["GENERACION", "CONSUMO TOTAL"]])
+col_1, col_2, = st.columns(2)
 
+with col_1:
+    col_1.dataframe(df.sort_values("HORAS").set_index("HORAS")[["GENERACIÓN", "CONSUMO TOTAL"]])
+
+with col_2:
+    col_21, col_22 = col_2.columns(2)
+    en_farms = round(total_fincas * eficiencia_f * 2.2 * 24 / 100, 2)
+    col_21.metric("Generación Diaria Adicional", f"{en_farms} kW")
+
+    col_23, col_24 = col_2.columns(2)
+    col_23.metric("Consumo Total Diaria", f"{round(df['CONSUMO TOTAL'].sum(),1):,} kW")
+    col_24.metric("Generación Diaria Total", f"{df['GENERACIÓN PCH'].sum() + en_farms} kW", f"{round(en_farms * 100 / df['GENERACIÓN PCH'].sum(), 2)} %")
+
+    col_25, col_26 = col_2.columns(2)
+    col_25.metric("Consumo Total Mensual", f"{round(df['CONSUMO TOTAL'].sum(),1) * 30:,} kW")
+    col_26.metric("Generación Total Mensual", f"{round(df['GENERACIÓN'].sum(), 1) * 30:,} kW")
