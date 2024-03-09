@@ -112,7 +112,7 @@ df_ind.fillna(0, inplace=True)
 col_1, col_2, = st.columns(2)
 
 with col_1:
-    st.header("CONSUMO INDUSTRIAL")
+    st.header("CONSUMO INDUSTRIAL [kwh]")
 
     st.line_chart(
         df_ind, x="HORAS", y=["CONSUMO_DESPULPADORA", "CONSUMO_SILO", "CONSUMO_TOSTADORA", "CONSUMO_TRILLADORA"]
@@ -136,7 +136,7 @@ with col_1:
      df_ind.CONSUMO_TOSTADORA.sum() + df_ind.CONSUMO_TRILLADORA.sum()) * 30:,} kwh""")
 
 with col_2:
-    st.header("CONSUMO RESIDENCIAL")
+    st.header("CONSUMO RESIDENCIAL [kwh]")
 
     df_tmp = dataframe_curve()
     df_tmp["PORC_2"] = df_tmp.PORC / df_tmp.PORC.sum()
@@ -159,7 +159,7 @@ with col_2:
     int(df_tmp['CONSUMO CASAS CON MEDIDORES [kwh]'].sum() + df_tmp['CONSUMO CASAS SIN MEDIDORES [kwh]'].sum()) * 30:,} kwh""")
 
 
-st.header("CONSUMO TOTAL")
+st.header("CONSUMO TOTAL [kwh]")
 
 df = pd.concat([df_ind.set_index("HORAS"), df_tmp.set_index("HORAS")], axis=1).reset_index()
 df["CONSUMO RESIDENCIAL"] = (df['CONSUMO CASAS CON MEDIDORES [kwh]'] + df_tmp['CONSUMO CASAS SIN MEDIDORES [kwh]'])
